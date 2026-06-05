@@ -1,59 +1,122 @@
-# RepeatTimer
+# Repeat Timer
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.3.
+Repeat Timer is a standalone Angular application that runs repeating countdown cycles (e.g., 8 minutes). When a cycle ends, the app plays a looping beep until the user presses **Next**, which immediately starts the next interval. The timer continues indefinitely until the user presses **Done**.
 
-## Development server
+The app is designed to run on:
+- Web (Angular)
+- Windows (Electron or Tauri)
+- Android (Capacitor)
 
-To start a local development server, run:
+## Features
+- Repeating countdown timer
+- Looping beep alert at the end of each cycle
+- Adjustable interval (+1 min / –1 min)
+- Endless cycles until user presses **Done**
+- Clean standalone Angular architecture
+- Cross-platform packaging (Web, Windows, Android)
 
-```bash
+## Tech Stack
+- Angular 17+ (standalone components)
+- TypeScript
+- SCSS
+- Node.js + npm
+- Optional packaging:
+  - Electron (Windows)
+  - Tauri (Windows, lightweight)
+  - Capacitor (Android)
+
+## Project Structure
+repeat-timer/
+  src/
+    app/
+      timer/
+        timer.component.ts
+        timer.component.html
+        timer.component.scss
+    assets/
+      beep.mp3
+  angular.json
+  package.json
+  README.md
+  TECHNICAL_TASK.md
+
+## Getting Started
+
+### 1. Install dependencies
+npm install
+
+### 2. Run the development server
 ng serve
-```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Open in browser:
+http://localhost:4200
 
-## Code scaffolding
+## Timer Logic Overview
+- Default interval: 8 minutes
+- Countdown runs using setInterval
+- When timer reaches 0:
+  - Beep sound loops
+  - UI displays “Time’s up”
+  - Timer waits for user action
+- Next:
+  - Stops beep
+  - Starts next interval immediately
+- Next +1 min / –1 min:
+  - Adjusts base interval for future cycles
+- Done:
+  - Stops timer and audio
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Building for Production
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
+### Web Build
 ng build
-```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Output is in:
+dist/repeat-timer/
 
-## Running unit tests
+## Packaging for Windows
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Option A — Electron
+ng add @electron/cli
+npm run electron:start
+npm run electron:build
 
-```bash
-ng test
-```
+### Option B — Tauri
+npm install @tauri-apps/cli @tauri-apps/api
+npm run build
+npm run tauri build
 
-## Running end-to-end tests
+## Packaging for Android (Capacitor)
 
-For end-to-end (e2e) testing, run:
+### 1. Add Capacitor
+ng add @capacitor/angular
 
-```bash
-ng e2e
-```
+### 2. Build Angular
+ng build
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### 3. Sync
+npx cap sync
 
-## Additional Resources
+### 4. Open Android Studio
+npx cap open android
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Build APK from Android Studio.
+
+## Development in Visual Studio 2026
+1. File → Open → Folder… → select project folder
+2. Ensure Node.js Development workload is installed
+3. Use npm Scripts panel to run:
+   - start
+   - build
+4. Optional: add Chrome debug profile for F5 debugging
+
+## Assets
+Place your beep sound here:
+src/assets/beep.mp3
+
+## Future Enhancements
+- Preset intervals
+- Dark/Light theme
+- Lab-style UI
+- Cycle statistics
+- Persistent settings
