@@ -11,7 +11,7 @@ import { TimerService } from '../services/timer';
 export class App implements OnInit {
 
   // user input (default = 8 minutes)
-  timeInput = 480;
+  timeInput = 4; // 480;
 
   // UI state
   remaining = 0;
@@ -19,6 +19,7 @@ export class App implements OnInit {
 
   // audio for alarm
   private audio = new Audio('assets/beep.mp3');
+  private audioUnlocked = false;
 
   // inject service (modern Angular style)
   private timerService = inject(TimerService);
@@ -30,26 +31,28 @@ export class App implements OnInit {
     // subscribe to remaining time
     this.timerService.remaining$.subscribe(value => {
       this.remaining = value;
-
-      // when timer finishes → play sound
-      if (value === 0 && !this.isRunning) {
-        this.playAlarm();
-      }
     });
 
     // subscribe to running state
     this.timerService.running$.subscribe(running => {
+      const wasRunning = this.isRunning;
       this.isRunning = running;
+
+      if (wasRunning && !running && this.remaining === 0) {
+        this.playAlarm();
+      }
     });
   }
 
   start() {
+    void this.unlockAudio();
     this.stopAlarm();
     this.timerService.setDuration(this.timeInput);
     this.timerService.start();
   }
 
   next() {
+    void this.unlockAudio();
     this.stopAlarm();
     this.timerService.nextCycle();
   }
@@ -73,6 +76,25 @@ export class App implements OnInit {
       // browsers may block autoplay until user interaction
       console.warn('Audio play blocked until user interaction');
     });
+  }
+
+  private async unlockAudio() {
+    if (this.audioUnlocked) {
+      return;
+    }
+
+    this.audio.muted = true;
+
+    try {
+      await this.audio.play();
+      this.audio.pause();
+      this.audio.currentTime = 0;
+      this.audioUnlocked = true;
+    } catch {
+      console.warn('Audio unlock failed');
+    } finally {
+      this.audio.muted = false;
+    }
   }
 
   // ✅ helper: stop alarm

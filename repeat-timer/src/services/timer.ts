@@ -3,8 +3,8 @@ import { BehaviorSubject, interval, Subscription } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class TimerService {
+
   private duration = 0;
-  private endTime = 0;
 
   private remaining = new BehaviorSubject<number>(0);
   private running = new BehaviorSubject<boolean>(false);
@@ -20,26 +20,23 @@ export class TimerService {
   }
 
   start() {
-    this.sub?.unsubscribe();
+    console.log('Timer start called'); // ✅ debug
 
-    // ✅ calculate real end timestamp
-    this.endTime = Date.now() + this.duration * 1000;
+    this.sub?.unsubscribe();
 
     this.running.next(true);
 
-    // ✅ update more frequently for accuracy
-    this.sub = interval(250).subscribe(() => {
-      const now = Date.now();
-      const secondsLeft = Math.max(
-        0,
-        Math.ceil((this.endTime - now) / 1000)
-      );
+    this.sub = interval(1000).subscribe(() => {
+      const current = this.remaining.getValue() - 1;
 
-      this.remaining.next(secondsLeft);
+      console.log('tick:', current); // ✅ debug
 
-      if (secondsLeft <= 0) {
+      if (current <= 0) {
+        this.remaining.next(0);
         this.running.next(false);
         this.stopInterval();
+      } else {
+        this.remaining.next(current);
       }
     });
   }
@@ -49,12 +46,7 @@ export class TimerService {
     this.running.next(false);
   }
 
-  reset() {
-    this.stopInterval();
-    this.remaining.next(this.duration);
-  }
-
   nextCycle() {
-    this.start(); // ✅ reuse same duration
+    this.start(); // reuse same duration
   }
 }
