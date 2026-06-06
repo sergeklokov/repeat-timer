@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="git_sergeklokov_setup.bat" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="repeat-timer/repeat-timer.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>

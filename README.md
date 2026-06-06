@@ -16,7 +16,7 @@ The app is designed to run on:
 - Cross-platform packaging (Web, Windows, Android)
 
 ## Tech Stack
-- Angular 17+ (standalone components)
+- Angular 21 (standalone components)
 - TypeScript
 - SCSS
 - Node.js + npm
