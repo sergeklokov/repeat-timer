@@ -5,3 +5,4 @@
 .vs/
 *.suo
 /repeat-timer/obj/Debug
+/node_modules
