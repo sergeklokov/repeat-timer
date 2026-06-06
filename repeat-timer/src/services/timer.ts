@@ -4,6 +4,8 @@ import { BehaviorSubject, interval, Subscription } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class TimerService {
   private duration = 0;
+  private endTime = 0;
+
   private remaining = new BehaviorSubject<number>(0);
   private running = new BehaviorSubject<boolean>(false);
 
@@ -18,26 +20,28 @@ export class TimerService {
   }
 
   start() {
-    if (this.sub) this.sub.unsubscribe();
+    this.sub?.unsubscribe();
+
+    // ✅ calculate real end timestamp
+    this.endTime = Date.now() + this.duration * 1000;
 
     this.running.next(true);
 
-    this.sub = interval(1000).subscribe(() => {
-      const current = this.remaining.value - 1;
+    // ✅ update more frequently for accuracy
+    this.sub = interval(250).subscribe(() => {
+      const now = Date.now();
+      const secondsLeft = Math.max(
+        0,
+        Math.ceil((this.endTime - now) / 1000)
+      );
 
-      if (current <= 0) {
-        this.remaining.next(0);
+      this.remaining.next(secondsLeft);
+
+      if (secondsLeft <= 0) {
         this.running.next(false);
         this.stopInterval();
-      } else {
-        this.remaining.next(current);
       }
     });
-  }
-
-  reset() {
-    this.stopInterval();
-    this.remaining.next(this.duration);
   }
 
   stopInterval() {
@@ -45,8 +49,12 @@ export class TimerService {
     this.running.next(false);
   }
 
+  reset() {
+    this.stopInterval();
+    this.remaining.next(this.duration);
+  }
+
   nextCycle() {
-    this.setDuration(this.duration);
-    this.start();
+    this.start(); // ✅ reuse same duration
   }
 }
