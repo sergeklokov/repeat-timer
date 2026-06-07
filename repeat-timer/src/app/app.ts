@@ -1,11 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { TimerService } from '../services/timer';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './app.html'
 })
 export class App implements OnInit {
@@ -22,16 +23,17 @@ export class App implements OnInit {
   private audioUnlocked = false;
 
   // inject service (modern Angular style)
-  private timerService = inject(TimerService);
+  public timerService = inject(TimerService);
+
+  // expose observable for template async pipe
+  remaining$ = this.timerService.remaining$;
 
   ngOnInit() {
     // loop the sound
     this.audio.loop = true;
 
-    // subscribe to remaining time
-    this.timerService.remaining$.subscribe(value => {
-      this.remaining = value;
-    });
+    // remaining$ is consumed by the template using the async pipe
+    // (avoids manual subscription and ensures change detection)
 
     // subscribe to running state
     this.timerService.running$.subscribe(running => {

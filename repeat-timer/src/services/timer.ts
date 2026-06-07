@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, interval, Subscription } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -11,12 +11,15 @@ export class TimerService {
 
   private sub?: Subscription;
 
+  constructor(private ngZone: NgZone) {}
+
   remaining$ = this.remaining.asObservable();
   running$ = this.running.asObservable();
 
   setDuration(seconds: number) {
     this.duration = seconds;
-    this.remaining.next(seconds);
+    // ensure we emit inside Angular zone so components update bindings
+    this.ngZone.run(() => this.remaining.next(seconds));
   }
 
   start() {
@@ -24,26 +27,33 @@ export class TimerService {
 
     this.sub?.unsubscribe();
 
-    this.running.next(true);
+    // set running state inside the zone
+    this.ngZone.run(() => this.running.next(true));
 
+    // interval may run outside Angular's zone in some environments; keep
+    // the timer callback lightweight and ensure subject updates happen
+    // inside the zone so change detection runs.
     this.sub = interval(1000).subscribe(() => {
       const current = this.remaining.getValue() - 1;
 
       console.log('tick:', current); // ✅ debug
 
       if (current <= 0) {
-        this.remaining.next(0);
-        this.running.next(false);
+        this.ngZone.run(() => {
+          this.remaining.next(0);
+          this.running.next(false);
+        });
         this.stopInterval();
       } else {
-        this.remaining.next(current);
+        this.ngZone.run(() => this.remaining.next(current));
       }
     });
   }
 
   stopInterval() {
     this.sub?.unsubscribe();
-    this.running.next(false);
+    // also ensure running state update occurs inside the zone
+    this.ngZone.run(() => this.running.next(false));
   }
 
   nextCycle() {
