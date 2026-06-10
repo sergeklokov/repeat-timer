@@ -84,6 +84,7 @@ export class TimerService {
   }
 
   nextCycle() {
-    this.start(); // reuse same duration
+    this.ngZone.run(() => this.remaining.next(this.duration));
+    this.start();
   }
 }
