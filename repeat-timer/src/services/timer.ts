@@ -13,6 +13,33 @@ export class TimerService {
 
   constructor(private ngZone: NgZone) {}
 
+  /** Return currently configured duration (seconds) */
+  getDuration(): number {
+    return this.duration;
+  }
+
+  /**
+   * Adjust duration and remaining time by a fractional percent (e.g. 0.1 = +10%, -0.1 = -10%).
+   * Keeps values at least 1 second.
+   */
+  adjustDurationByPercent(fraction: number) {
+    const newDuration = Math.max(1, Math.round(this.duration * (1 + fraction)));
+    this.duration = newDuration;
+
+    const currentRemaining = this.remaining.getValue();
+    const newRemaining = Math.max(1, Math.round(currentRemaining * (1 + fraction)));
+
+    this.ngZone.run(() => this.remaining.next(newRemaining));
+  }
+
+  increaseByPercent(fraction: number) {
+    this.adjustDurationByPercent(Math.abs(fraction));
+  }
+
+  decreaseByPercent(fraction: number) {
+    this.adjustDurationByPercent(-Math.abs(fraction));
+  }
+
   remaining$ = this.remaining.asObservable();
   running$ = this.running.asObservable();
 

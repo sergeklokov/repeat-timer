@@ -59,6 +59,16 @@ export class App implements OnInit {
     this.timerService.nextCycle();
   }
 
+  increase10() {
+    this.timerService.increaseByPercent(0.1);
+    this.timeInput = this.timerService.getDuration();
+  }
+
+  decrease10() {
+    this.timerService.decreaseByPercent(0.1);
+    this.timeInput = this.timerService.getDuration();
+  }
+
   done() {
     this.stopAlarm();
     this.timerService.stopInterval();
